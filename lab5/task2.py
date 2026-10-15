@@ -1,202 +1,190 @@
-# FIXME: 1. Строки длиннее 80 символов.
-# FIXME: 2. Нет docstring у модуля, а у get_height он был только в
-#        FIXTO-версии.
-# FIXME: 3. Однобуквенное имя N, имя parent неинформативно.
-# FIXME: 4. Нет аннотаций типов.
-# FIXME: 5. Код на уровне модуля: нет main и
-#        if __name__ == '__main__', глобальные переменные.
-# FIXME: 6. Функция get_height использует глобальную parent вместо
-#        параметра.
+# FIXME: 1. Строки длиннее 80 символов (строки 4, 12, 20, 28, 36, 44, 52, 60).
+# FIXME: 2. Нет docstring (описания модуля и функций).
+# FIXME: 3. Неинформативные имена (n, orders, i как номер заказа).
+# FIXME: 4. Код на уровне модуля: нет функций, main и
+#        if __name__ == '__main__', все переменные глобальные.
+# FIXME: 5. Нет аннотаций типов.
 
 
-# print("ГЕНЕАЛОГИЧЕСКОЕ ДРЕВО")
-# # Проверка ввода количества человек
+# # Проверка ввода количества заказов
 # while True:
 #     try:
-#         N = int(input("Введите количество человек: "))
-#         if N <= 0:
-#             print("Ошибка: количество человек должно быть положительным числом.")
+#         n = int(input("Введите кол-во заказов: "))
+#         if n <= 0:
+#             print("Ошибка: количество заказов должно быть положительным числом. Попробуйте снова.")
 #             continue
 #         break
 #     except ValueError:
-#         print("Ошибка: введите целое число.")
+#         print("Ошибка: введите целое число. Попробуйте снова.")
 
-# # Словарь для хранения родителя каждого человека: {потомок: родитель}
-# parent = {}
+# # Словарь для хранения заказов: {покупатель: {пицца: количество}}
+# orders = {}
 
-# # Ввод N-1 пары
-# for i in range(1, N):
+# # Ввод заказов
+# for i in range(1, n + 1):
 #     while True:
-#         pair = input(f"{i} пара: ").strip().split()
-#         if len(pair) != 2:
-#             print("Ошибка: введите имя потомка и имя родителя через пробел.")
+#         order = input(f"{i} заказ: ").strip()
+#         parts = order.split()
+
+#         # Проверка формата ввода (должно быть 3 части)
+#         if len(parts) != 3:
+#             print("Ошибка: введите заказ в формате 'Покупатель Пицца Количество'. Попробуйте снова.")
 #             continue
 
-#         child, parent_name = pair
+#         buyer, pizza, quantity_str = parts
 
-#         # Проверка, что имена не пустые
-#         if not child or not parent_name:
-#             print("Ошибка: имена не могут быть пустыми.")
+#         # Проверка, что количество - целое положительное число
+#         try:
+#             quantity = int(quantity_str)
+#             if quantity <= 0:
+#                 print("Ошибка: количество пицц должно быть положительным числом. Попробуйте снова.")
+#                 continue
+#         except ValueError:
+#             print("Ошибка: количество должно быть целым числом. Попробуйте снова.")
 #             continue
 
-#         # Проверка, что потомок ещё не имеет родителя
-#         if child in parent:
-#             print(f"Ошибка: для {child} уже указан родитель ({parent[child]}).")
+#         # Проверка, что названия не пустые
+#         if not buyer or not pizza:
+#             print("Ошибка: имя покупателя и название пиццы не могут быть пустыми. Попробуйте снова.")
 #             continue
 
-#         parent[child] = parent_name
+#         # Добавляем заказ в словарь
+#         if buyer not in orders:
+#             orders[buyer] = {}
+
+#         if pizza not in orders[buyer]:
+#             orders[buyer][pizza] = 0
+
+#         orders[buyer][pizza] += quantity
 #         break
 
-# # Функция для вычисления высоты человека
-# def get_height(person, heights_cache):
-#     if person in heights_cache:
-#         return heights_cache[person]
+# print("ИТОГОВЫЕ ЗАКАЗЫ:")
 
-#     # Если у человека нет родителя, значит это родоначальник
-#     if person not in parent:
-#         heights_cache[person] = 0
-#         return 0
+# # Сортируем покупателей по алфавиту
+# for buyer in sorted(orders.keys()):
+#     print(f"{buyer}:")
 
-#     # Высота = высота родителя + 1
-#     height = get_height(parent[person], heights_cache) + 1
-#     heights_cache[person] = height
-#     return height
-
-# # Словарь для кэширования высот
-# heights = {}
-
-# # Вычисляем высоту для всех людей
-# # Сначала находим всех людей (родители могут не быть в parent как потомки)
-# all_people = set(parent.keys()) | set(parent.values())
-
-# # Вычисляем высоту для каждого человека
-# for person in all_people:
-#     get_height(person, heights)
-
-# # Вывод результатов в лексикографическом порядке
-# print("“Высота” каждого члена семьи:")
-
-# for person in sorted(all_people):
-#     print(f"{person} {heights[person]}")
+#     # Сортируем пиццы по алфавиту для каждого покупателя
+#     for pizza in sorted(orders[buyer].keys()):
+#         print(f"\t{pizza}: {orders[buyer][pizza]}")
 
 
 # FIXTO:
-"""Генеалогическое дерево.
+"""Учёт заказов пиццы.
 
-Программа читает пары «потомок родитель» и вычисляет «высоту» каждого
-члена семьи: у родоначальника она равна 0, у потомка - высота
-родителя плюс 1.
+Программа читает заказы в формате «Покупатель Пицца Количество»,
+суммирует одинаковые позиции и выводит итог по каждому покупателю.
 """
 
 
-def input_people_count() -> int:
-    """Запрашивает количество человек.
+def input_orders_count() -> int:
+    """Запрашивает количество заказов.
 
     Ввод повторяется, пока не будет введено положительное целое число.
 
     Returns:
-        Количество человек.
+        Количество заказов.
     """
     while True:
         try:
-            people_count = int(input("Введите количество человек: "))
-            if people_count <= 0:
+            orders_count = int(input("Введите кол-во заказов: "))
+            if orders_count <= 0:
                 print(
-                    "Ошибка: количество человек должно быть положительным "
+                    "Ошибка: количество заказов должно быть положительным "
                     "числом. Попробуйте снова."
                 )
                 continue
-            return people_count
+            return orders_count
         except ValueError:
-            print("Ошибка: введите целое число.")
+            print("Ошибка: введите целое число. Попробуйте снова.")
 
 
-def input_parent_map(people_count: int) -> dict[str, str]:
-    """Запрашивает пары «потомок родитель» (их на одну меньше людей).
+def input_order(order_number: int) -> tuple[str, str, int]:
+    """Запрашивает один заказ и проверяет формат ввода.
+
+    Формат: «Покупатель Пицца Количество», ровно три поля,
+    количество - целое число больше нуля.
 
     Args:
-        people_count: количество человек в дереве.
+        order_number: порядковый номер заказа (для приглашения к вводу).
 
     Returns:
-        Словарь потомок -> родитель.
+        Кортеж (покупатель, пицца, количество).
     """
-    parent_map: dict[str, str] = {}
+    while True:
+        parts = input(f"{order_number} заказ: ").strip().split()
 
-    for i in range(1, people_count):
-        while True:
-            pair = input(f"{i} пара: ").strip().split()
+        if len(parts) != 3:
+            print(
+                "Ошибка: введите заказ в формате "
+                "'Покупатель Пицца Количество'. Попробуйте снова."
+            )
+            continue
 
-            if len(pair) != 2:
-                print("Ошибка: введите 'ребёнок родитель'.")
-                continue
+        buyer, pizza, quantity_str = parts
 
-            child, parent_name = pair
+        try:
+            quantity = int(quantity_str)
+        except ValueError:
+            print(
+                "Ошибка: количество должно быть целым числом. "
+                "Попробуйте снова."
+            )
+            continue
 
-            if child in parent_map:
-                print(
-                    f"Ошибка: для {child} уже задан родитель "
-                    f"({parent_map[child]})."
-                )
-                continue
+        if quantity <= 0:
+            print(
+                "Ошибка: количество пицц должно быть положительным "
+                "числом. Попробуйте снова."
+            )
+            continue
 
-            parent_map[child] = parent_name
-            break
-
-    return parent_map
+        return buyer, pizza, quantity
 
 
-def get_height(
-    person: str, parent_map: dict[str, str], cache: dict[str, int]
-) -> int:
-    """Вычисляет высоту человека в генеалогическом дереве.
-
-    Высота родоначальника равна 0, высота остальных - высота
-    родителя плюс 1. Результаты сохраняются в кэше.
+def add_order(
+    orders_by_buyer: dict[str, dict[str, int]],
+    buyer: str,
+    pizza: str,
+    quantity: int,
+) -> None:
+    """Добавляет заказ в словарь, суммируя одинаковые пиццы.
 
     Args:
-        person: имя человека.
-        parent_map: словарь потомок -> родитель.
-        cache: словарь уже вычисленных высот.
-
-    Returns:
-        Высота человека в дереве.
+        orders_by_buyer: словарь покупатель -> пицца -> количество.
+        buyer: имя покупателя.
+        pizza: название пиццы.
+        quantity: количество пицц.
     """
-    if person in cache:
-        return cache[person]
-
-    if person not in parent_map:
-        cache[person] = 0
-        return 0
-
-    height = get_height(parent_map[person], parent_map, cache) + 1
-    cache[person] = height
-    return height
+    buyer_orders = orders_by_buyer.setdefault(buyer, {})
+    buyer_orders[pizza] = buyer_orders.get(pizza, 0) + quantity
 
 
-def print_heights(parent_map: dict[str, str]) -> None:
-    """Вычисляет и выводит высоты всех людей по алфавиту.
+def print_orders(orders_by_buyer: dict[str, dict[str, int]]) -> None:
+    """Выводит итоговые заказы, отсортированные по алфавиту.
 
     Args:
-        parent_map: словарь потомок -> родитель.
+        orders_by_buyer: словарь покупатель -> пицца -> количество.
     """
-    heights_cache: dict[str, int] = {}
-    all_people = set(parent_map.keys()) | set(parent_map.values())
+    print("ИТОГОВЫЕ ЗАКАЗЫ:")
 
-    for person in all_people:
-        get_height(person, parent_map, heights_cache)
+    for buyer in sorted(orders_by_buyer):
+        print(f"{buyer}:")
 
-    print("\nРезультаты:")
-
-    for person in sorted(all_people):
-        print(f"{person} {heights_cache[person]}")
+        for pizza in sorted(orders_by_buyer[buyer]):
+            print(f"\t{pizza}: {orders_by_buyer[buyer][pizza]}")
 
 
 def main() -> None:
-    """Запускает программу: ввод дерева и вывод высот."""
-    print("ГЕНЕАЛОГИЧЕСКОЕ ДРЕВО")
-    people_count = input_people_count()
-    parent_map = input_parent_map(people_count)
-    print_heights(parent_map)
+    """Запускает программу: ввод заказов и вывод итогов."""
+    orders_count = input_orders_count()
+    orders_by_buyer: dict[str, dict[str, int]] = {}
+
+    for i in range(1, orders_count + 1):
+        buyer, pizza, quantity = input_order(i)
+        add_order(orders_by_buyer, buyer, pizza, quantity)
+
+    print_orders(orders_by_buyer)
 
 
 if __name__ == '__main__':
