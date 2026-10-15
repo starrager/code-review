@@ -1,5 +1,4 @@
 import random
-from typing import List, Tuple
 
 # FIXME: нет аннотаций типов для констант
 # # ANSI-коды для цвета
@@ -12,9 +11,12 @@ from typing import List, Tuple
 RED: str = "\033[91m"
 GREEN: str = "\033[92m"
 RESET: str = "\033[0m"
+QUESTIONS_COUNT: int = 5
 
 
-# FIXME: списочное выражение компактнее многострочного цикла, нет аннотации типа для questions
+# FIXME: списочное выражение компактнее многострочного цикла, нет
+#        аннотации типа, глобальная переменная questions, однобуквенные
+#        имена (a, b), импорт функций из typing вместо модуля
 
 # # Генерация 5 случайных примеров на умножение
 # questions = []
@@ -24,19 +26,16 @@ RESET: str = "\033[0m"
 #     questions.append((a, b))
 
 # FIXTO:
-# Генерация 5 случайных примеров на умножение
-QUESTIONS_COUNT: int = 5
-questions: List[Tuple[int, int]] = [
-    (random.randint(2, 9), random.randint(2, 9)) for _ in range(QUESTIONS_COUNT)
-]
-
-def generate_questions(count: int = 5) -> List[Tuple[int, int]]:
+def generate_questions(
+    count: int = QUESTIONS_COUNT,
+) -> list[tuple[int, int]]:
     # Генерация случайных примеров на умножение
-    return [(random.randint(2, 9), random.randint(2, 9)) for _ in range(count)]
+    return [
+        (random.randint(2, 9), random.randint(2, 9)) for _ in range(count)
+    ]
 
 
-
-# FIXME : код должен быть внутри отдельной функции
+# FIXME: код должен быть внутри отдельной функции, однобуквенные имена
 # user_answers = []
 #
 # # Выводим вопросы и ответы
@@ -45,16 +44,17 @@ def generate_questions(count: int = 5) -> List[Tuple[int, int]]:
 #     user_answers.append(answer)
 
 # FIXTO:
-def get_user_answers(questions: List[Tuple[int, int]]) -> List[str]:
+def get_user_answers(questions: list[tuple[int, int]]) -> list[str]:
     # Ввод ответов пользователя на все вопросы
-    user_answers: List[str] = []
-    for i, (a, b) in enumerate(questions, 1):
-        answer = input(f"{i}. {a} × {b} = ")
+    user_answers: list[str] = []
+    for i, (left, right) in enumerate(questions, 1):
+        answer = input(f"{i}. {left} × {right} = ")
         user_answers.append(answer)
     return user_answers
 
 
-# FIXME: код должен быть внутри отдельной функции, есть длинные строки
+# FIXME: код должен быть внутри отдельной функции, есть длинные строки,
+#        однобуквенные имена (a, b), число 5 записано в коде вручную
 # print("\n" + "=" * 30)
 # print("РЕЗУЛЬТАТЫ:")
 # print("=" * 30)
@@ -83,7 +83,8 @@ def get_user_answers(questions: List[Tuple[int, int]]) -> List[str]:
 
 # FIXTO:
 def check_answers(
-    questions: List[Tuple[int, int]], user_answers: List[str]) -> int:
+    questions: list[tuple[int, int]], user_answers: list[str]
+) -> int:
     # Проверка ответов и вывод результатов
     print("\n" + "=" * 30)
     print("РЕЗУЛЬТАТЫ:")
@@ -91,35 +92,42 @@ def check_answers(
 
     correct_count: int = 0
 
-    for i, ((a, b), user_ans) in enumerate(zip(questions, user_answers), 1):
-        correct: int = a * b
+    for i, ((left, right), user_answer) in enumerate(
+        zip(questions, user_answers), 1
+    ):
+        correct: int = left * right
 
         try:
-            user_num: int = int(user_ans)
+            user_num: int = int(user_answer)
             if user_num == correct:
-                print(f"{i}. {a} × {b} = {correct} ✓")
+                print(f"{i}. {left} × {right} = {correct} ✓")
                 correct_count += 1
             else:
-                print(f"{i}. {a} × {b} = {RED}{user_ans}{RESET} "
-                      f"(правильно: {correct})")
+                print(
+                    f"{i}. {left} × {right} = {RED}{user_answer}{RESET} "
+                    f"(правильно: {correct})"
+                )
         except ValueError:
-            print(f"{i}. {a} × {b} = {RED}{user_ans}{RESET} "
-                  f"(нужно число, правильно: {correct})")
+            print(
+                f"{i}. {left} × {right} = {RED}{user_answer}{RESET} "
+                f"(нужно число, правильно: {correct})"
+            )
 
     print("\n" + "=" * 30)
-    print(f"Правильных ответов: {correct_count} из 5")
+    print(f"Правильных ответов: {correct_count} из {len(questions)}")
     print("=" * 30)
 
     return correct_count
+
 
 # Основная функция программы.
 def main() -> None:
     print("\n=== ТЕСТ: ТАБЛИЦА УМНОЖЕНИЯ ===\n")
 
-    questions_list: List[Tuple[int, int]] = generate_questions()
-    user_answers_list: List[str] = get_user_answers(questions_list)
-    check_answers(questions_list, user_answers_list)
+    questions: list[tuple[int, int]] = generate_questions()
+    user_answers: list[str] = get_user_answers(questions)
+    check_answers(questions, user_answers)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
-
