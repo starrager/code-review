@@ -1,0 +1,3 @@
+apple
+snake
+telephone
